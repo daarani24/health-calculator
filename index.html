@@ -1,0 +1,738 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BMI Calculator &amp; Health Calculators | Health Calculator Suite</title>
+  <meta name="description" content="Free BMI, BMR and daily calorie, ideal body weight, body fat percentage, and water intake calculators.">
+  <meta name="robots" content="index, follow">
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+  <style>
+    /* Theme / configuration: update these solid color values to retheme the calculator. */
+    :root {
+      --page-background: #f3f6f8;
+      --card-background: #ffffff;
+      --primary-button: #176b5b;
+      --button-text: #ffffff;
+      --body-text: #18302b;
+      --muted-text: #5d6d68;
+      --border-color: #cdd8d4;
+      --focus-outline: #176b5b;
+      --validation-error: #b42318;
+      --bmi-score-color: #176b5b;
+      --underweight-color: #1d4ed8;
+      --normal-color: #15803d;
+      --overweight-color: #b45309;
+      --obese-color: #b42318;
+      --previous-background: #e8f0ed;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      width: 100%;
+      margin: 0;
+      font-family: "Work Sans", sans-serif;
+      background: var(--page-background);
+      color: var(--body-text);
+    }
+
+    .bmi-page {
+      width: 100%;
+      min-height: calc(100 * min(var(--vh, 1vh), 1vh));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem 1rem;
+    }
+
+    .calculator-shell {
+      width: 100%;
+      max-width: 31rem;
+    }
+
+    .calculator-card {
+      border: 1px solid var(--border-color);
+      border-radius: 1.25rem;
+      padding: clamp(1.5rem, 5vw, 2.5rem);
+      box-shadow: 0 16px 40px rgba(24, 48, 43, 0.10);
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      margin-bottom: 0.8rem;
+      padding: 0.35rem 0.65rem;
+      border: 1px solid var(--border-color);
+      border-radius: 999px;
+      color: var(--primary-button);
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .field-group {
+      display: grid;
+      gap: 0.45rem;
+    }
+
+    .number-input {
+      width: 100%;
+      min-height: 3.25rem;
+      border: 1px solid var(--border-color);
+      border-radius: 0.7rem;
+      padding: 0.75rem 0.9rem;
+      background: var(--card-background);
+      color: var(--body-text);
+      font: inherit;
+      line-height: 1.4;
+      transition: border-color 160ms ease, box-shadow 160ms ease;
+    }
+
+    .number-input::placeholder {
+      color: var(--muted-text);
+      opacity: 1;
+    }
+
+    .number-input:hover {
+      border-color: var(--primary-button);
+    }
+
+    .number-input:focus {
+      outline: 3px solid color-mix(in srgb, var(--focus-outline) 25%, transparent);
+      outline-offset: 1px;
+      border-color: var(--focus-outline);
+    }
+
+    .number-input[aria-invalid="true"] {
+      border-color: var(--validation-error);
+    }
+
+    .calculate-button {
+      width: 100%;
+      min-height: 3.35rem;
+      border: 0;
+      border-radius: 0.7rem;
+      padding: 0.75rem 1.1rem;
+      cursor: pointer;
+      font: inherit;
+      transition: transform 160ms ease, filter 160ms ease, box-shadow 160ms ease;
+    }
+
+    .calculate-button:hover {
+      filter: brightness(0.93);
+      box-shadow: 0 8px 18px rgba(23, 107, 91, 0.22);
+    }
+
+    .calculate-button:active {
+      transform: translateY(1px);
+    }
+
+    .calculate-button:focus-visible {
+      outline: 3px solid var(--focus-outline);
+      outline-offset: 3px;
+    }
+
+    .validation-message {
+      min-height: 1.25rem;
+      margin-top: 0.7rem;
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+
+    .result-panel {
+      margin-top: 1.5rem;
+      border: 1px solid var(--border-color);
+      border-radius: 0.9rem;
+      padding: 1.25rem;
+    }
+
+    .bmi-score {
+      font-size: clamp(2.5rem, 10vw, 3.7rem);
+      font-weight: 700;
+      letter-spacing: -0.06em;
+      line-height: 1;
+    }
+
+    .category-badge {
+      display: inline-flex;
+      align-items: center;
+      min-height: 2.2rem;
+      border-radius: 999px;
+      padding: 0.45rem 0.85rem;
+      font-size: 0.92rem;
+      font-weight: 700;
+    }
+
+    .category-badge[hidden] {
+      display: none;
+    }
+
+    .tool-nav { display:flex; gap:.4rem; overflow-x:auto; margin-bottom:1rem; padding:.25rem; scrollbar-width:thin; }
+    .tool-tab { flex:0 0 auto; border:1px solid var(--border-color); border-radius:.7rem; background:var(--card-background); color:var(--body-text); padding:.7rem .9rem; font:inherit; cursor:pointer; }
+    .tool-tab.active, .tool-tab:focus-visible { background:var(--primary-button); color:var(--button-text); outline:3px solid color-mix(in srgb, var(--focus-outline) 25%, transparent); outline-offset:2px; }
+    .tool-form { display:grid; gap:.7rem; margin-top:1.25rem; }
+    .tool-form label, .tool-form legend { font-weight:600; }
+    .tool-form fieldset { display:flex; gap:1rem; border:0; padding:0; }
+    .tool-result { margin-top:1rem; line-height:1.6; }
+    .tool-result strong { color:var(--bmi-score-color); font-size:1.15em; }
+    .tool-form .reset-button { min-height:3.35rem; }
+    .unit-toggle { display:flex; gap:.5rem; border:0; padding:0; }
+    .unit-toggle label { flex:1; text-align:center; padding:.8rem; border:1px solid var(--border-color); border-radius:.7rem; cursor:pointer; font-weight:600; }
+    .unit-toggle input { accent-color:var(--primary-button); }
+    .button-row { display:grid; grid-template-columns:2fr 1fr; gap:.65rem; }
+    .reset-button { border:1px solid var(--border-color); border-radius:.7rem; background:transparent; color:var(--body-text); font:inherit; font-weight:600; cursor:pointer; }
+    .reset-button:hover { background:var(--page-background); }
+    .bmi-scale { position:relative; display:grid; grid-template-columns:1fr 1.5fr 1fr 1.5fr; min-height:3.5rem; margin-top:1.25rem; overflow:hidden; border-radius:.6rem; font-size:.72rem; font-weight:700; text-align:center; color:#fff; }
+    .bmi-scale span { display:flex; align-items:center; justify-content:center; padding:.35rem; }
+    .scale-under { background:var(--underweight-color); }.scale-normal{background:var(--normal-color)}.scale-over{background:var(--overweight-color)}.scale-obese{background:var(--obese-color)}
+    #bmi-marker { position:absolute; top:-.15rem; width:3px; height:3.8rem; background:#111827; transform:translateX(-50%); transition:left .35s ease; }
+    .health-tip,.previous-result { margin:1rem 0 0; padding:.8rem; border-radius:.6rem; background:var(--previous-background); color:var(--body-text); line-height:1.45; }
+    .previous-result { font-size:.9rem; }
+    .disclaimer { max-width:31rem; margin:1rem auto 0; color:var(--muted-text); font-size:.78rem; text-align:center; }
+    .route-content { width:100%; }
+    .info-card { width:100%; }
+    .info-card h1 { margin:0; line-height:1.15; }
+    .info-card p { margin:1rem 0 0; color:var(--muted-text); line-height:1.7; }
+    .info-card a, .site-footer a { color:var(--primary-button); font-weight:600; text-decoration:underline; text-underline-offset:.18em; }
+    .site-footer { width:100%; max-width:31rem; margin:1.25rem auto 0; padding:.25rem 0; color:var(--muted-text); font-size:.78rem; text-align:center; }
+    .site-footer nav { display:flex; flex-wrap:wrap; justify-content:center; gap:.35rem .85rem; margin-top:.4rem; }
+    .site-footer a:focus-visible, .info-card a:focus-visible { outline:3px solid color-mix(in srgb, var(--focus-outline) 25%, transparent); outline-offset:3px; border-radius:.2rem; }
+    @media (prefers-reduced-motion: reduce) { #bmi-marker { transition:none; } }
+
+    @media (max-width: 420px) {
+      .bmi-page {
+        align-items: flex-start;
+        padding-top: 1.25rem;
+      }
+
+      .calculator-card {
+        border-radius: 1rem;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .number-input,
+      .calculate-button {
+        transition: none;
+      }
+    }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js" type="text/javascript"></script>
+ </head>
+ <body data-template-id="__page-root" style="background: rgb(243, 246, 248);">
+  <main id="app-main" class="bmi-page" aria-labelledby="page-title">
+   <section id="dashboard-view" class="calculator-shell">
+    <nav class="tool-nav" aria-label="Health tools" role="tablist"><button id="bmi-tab" type="button" role="tab" aria-selected="true" aria-controls="bmi-tool" tabindex="0" class="tool-tab active" data-tool="bmi">BMI</button> <button id="bmr-tab" type="button" role="tab" aria-selected="false" aria-controls="bmr-tool" tabindex="-1" class="tool-tab" data-tool="bmr">BMR &amp; Calories</button> <button id="ideal-tab" type="button" role="tab" aria-selected="false" aria-controls="ideal-tool" tabindex="-1" class="tool-tab" data-tool="ideal">Ideal Weight</button> <button id="fat-tab" type="button" role="tab" aria-selected="false" aria-controls="fat-tool" tabindex="-1" class="tool-tab" data-tool="fat">Body Fat</button> <button id="water-tab" type="button" role="tab" aria-selected="false" aria-controls="water-tool" tabindex="-1" class="tool-tab" data-tool="water">Water Intake</button>
+    </nav>
+    <section id="bmr-tool" class="tool-section" role="tabpanel" hidden="" aria-labelledby="bmr-tab bmr-title">
+     <article class="calculator-card canva-card">
+      <h2 id="bmr-title" data-template-id="bmr-title" class="canva-text font-semibold" style="color: rgb(24, 48, 43); font-weight: 600; font-style: normal; font-size: 24px;">BMR &amp; Daily Calories</h2>
+      <form class="tool-form" data-kind="bmr">
+       <label for="bmr-age">Age (years)</label><input id="bmr-age" class="number-input" type="number" min="13" max="120" required="">
+       <fieldset>
+        <legend>Gender</legend><label><input type="radio" name="bmr-gender" value="male"> Male</label><label><input type="radio" name="bmr-gender" value="female"> Female</label>
+       </fieldset><label for="bmr-weight">Weight (kg)</label><input id="bmr-weight" class="number-input" type="number" min="10" max="500" required=""><label for="bmr-height">Height (cm)</label><input id="bmr-height" class="number-input" type="number" min="50" max="250" required=""><label for="bmr-activity">Activity level</label><select id="bmr-activity" class="number-input"><option value="1.2">Sedentary</option><option value="1.375">Light</option><option value="1.55">Moderate</option><option value="1.725">Active</option></select><button class="calculate-button" type="submit">Calculate</button><button class="reset-button" type="reset">Reset</button>
+       <p class="tool-error" role="alert" aria-live="assertive"></p>
+      </form>
+      <div class="tool-result result-panel" aria-live="polite" hidden=""></div>
+     </article>
+    </section>
+    <section id="ideal-tool" class="tool-section" role="tabpanel" hidden="" aria-labelledby="ideal-tab ideal-title">
+     <article class="calculator-card canva-card">
+      <h2 id="ideal-title" class="font-semibold">Ideal Body Weight</h2>
+      <form class="tool-form" data-kind="ideal">
+       <label for="ideal-height">Height (cm)</label><input id="ideal-height" class="number-input" type="number" min="50" max="250" required="">
+       <fieldset>
+        <legend>Gender</legend><label><input type="radio" name="ideal-gender" value="male"> Male</label><label><input type="radio" name="ideal-gender" value="female"> Female</label>
+       </fieldset><button class="calculate-button" type="submit">Calculate</button><button class="reset-button" type="reset">Reset</button>
+       <p class="tool-error" role="alert"></p>
+      </form>
+      <div class="tool-result result-panel" aria-live="polite" hidden=""></div>
+     </article>
+    </section>
+    <section id="fat-tool" class="tool-section" role="tabpanel" hidden="" aria-labelledby="fat-tab fat-title">
+     <article class="calculator-card canva-card">
+      <h2 id="fat-title" class="font-semibold">Body Fat % Estimator</h2>
+      <form class="tool-form" data-kind="fat">
+       <label for="fat-waist">Waist (cm)</label><input id="fat-waist" class="number-input" type="number" required=""><label for="fat-neck">Neck (cm)</label><input id="fat-neck" class="number-input" type="number" required=""><label for="fat-height">Height (cm)</label><input id="fat-height" class="number-input" type="number" min="50" max="250" required=""><label for="fat-hip">Hip (cm, women)</label><input id="fat-hip" class="number-input" type="number">
+       <fieldset>
+        <legend>Gender</legend><label><input type="radio" name="fat-gender" value="male"> Male</label><label><input type="radio" name="fat-gender" value="female"> Female</label>
+       </fieldset><button class="calculate-button" type="submit">Calculate</button><button class="reset-button" type="reset">Reset</button>
+       <p class="tool-error" role="alert"></p>
+      </form>
+      <div class="tool-result result-panel" aria-live="polite" hidden=""></div>
+     </article>
+    </section>
+    <section id="water-tool" class="tool-section" role="tabpanel" hidden="" aria-labelledby="water-tab water-title">
+     <article class="calculator-card canva-card">
+      <h2 id="water-title" class="font-semibold">Water Intake</h2>
+      <form class="tool-form" data-kind="water">
+       <label for="water-weight">Weight (kg)</label><input id="water-weight" class="number-input" type="number" min="10" max="500" required=""><label for="water-activity">Activity level</label><select id="water-activity" class="number-input"><option value="0">Sedentary</option><option value="5">Light</option><option value="10">Moderate</option><option value="15">Active</option></select><button class="calculate-button" type="submit">Calculate</button><button class="reset-button" type="reset">Reset</button>
+       <p class="tool-error" role="alert"></p>
+      </form>
+      <div class="tool-result result-panel" aria-live="polite" hidden=""></div>
+     </article>
+    </section>
+    <article id="bmi-tool" data-template-id="calculator-card" role="tabpanel" aria-labelledby="bmi-tab page-title" class="calculator-card canva-card" style="background: rgb(255, 255, 255);">
+     <header><span class="eyebrow" aria-hidden="true">Health tool</span>
+      <h1 data-template-id="page-title" class="canva-text m-0 font-bold leading-tight" style="color: rgb(24, 48, 43); font-weight: 700; font-style: normal; font-size: 32px;">BMI Calculator</h1>
+      <p data-template-id="page-subtitle" class="canva-text mt-3 mb-0 leading-relaxed" style="color: rgb(93, 109, 104); font-weight: 400; font-style: normal; font-size: 16px; line-height: 1.5;">Enter your measurements to calculate your Body Mass Index.</p>
+     </header>
+     <form id="bmi-form" class="mt-7 space-y-5" novalidate="">
+      <fieldset class="unit-toggle" aria-label="Unit system"><legend class="sr-only">Unit system</legend><label><input type="radio" name="units" value="metric" checked=""> Metric</label><label><input type="radio" name="units" value="imperial"> Imperial</label>
+      </fieldset>
+      <fieldset class="m-0 border-0 p-0 space-y-5"><legend data-template-id="form-heading" class="canva-text mb-4 font-semibold" style="color: rgb(24, 48, 43); font-weight: 600; font-style: normal; font-size: 18px;">Your measurements</legend>
+       <div class="field-group"><label data-template-id="weight-label" class="canva-text font-medium" for="weight-input" style="color: rgb(24, 48, 43); font-weight: 500; font-style: normal; font-size: 16px;">Weight (kg)</label><input data-template-id="weight-input" class="number-input canva-input" id="weight-input" type="number" inputmode="decimal" step="0.1" aria-describedby="form-helper validation-message" autocomplete="off" placeholder="e.g. 70" style="background: rgb(255, 255, 255); color: rgb(24, 48, 43); font-weight: 400; font-style: normal; font-size: 16px;">
+       </div>
+       <div class="field-group"><label data-template-id="height-label" class="canva-text font-medium" for="height-input" style="color: rgb(24, 48, 43); font-weight: 500; font-style: normal; font-size: 16px;">Height (cm)</label><input data-template-id="height-input" class="number-input canva-input" id="height-input" type="number" inputmode="decimal" step="0.1" aria-describedby="form-helper validation-message" autocomplete="off" placeholder="e.g. 175" style="background: rgb(255, 255, 255); color: rgb(24, 48, 43); font-weight: 400; font-style: normal; font-size: 16px;">
+       </div>
+       <div class="field-group imperial-only" hidden=""><label class="font-medium" for="height-feet">Height (ft)</label><input class="number-input" id="height-feet" type="number" inputmode="decimal" min="1" max="8" step="1">
+       </div>
+       <div class="field-group imperial-only" hidden=""><label class="font-medium" for="height-inches">Height (in)</label><input class="number-input" id="height-inches" type="number" inputmode="decimal" min="0" max="11.9" step="0.1">
+       </div>
+      </fieldset>
+      <p data-template-id="form-helper" id="form-helper" class="canva-text m-0 text-sm leading-relaxed" style="color: rgb(93, 109, 104); font-weight: 400; font-style: normal; font-size: 14px; line-height: 1.5;">Use kilograms and centimeters for the most accurate result.</p>
+      <div class="button-row"><button data-template-id="calculate-button" class="calculate-button canva-button font-semibold" type="submit" style="background: rgb(23, 107, 91); color: rgb(255, 255, 255); font-weight: 600; font-style: normal; font-size: 16px;">Calculate BMI</button><button id="reset-button" class="reset-button" type="button">Reset</button>
+      </div>
+      <p data-template-id="validation-message" id="validation-message" class="validation-message canva-text m-0" role="alert" aria-live="assertive" style="color: rgb(180, 35, 24); font-weight: 500; font-size: 14px;"></p>
+     </form>
+     <section data-template-id="result-section" id="result-section" class="result-panel canva-panel" aria-live="polite" aria-labelledby="result-heading" hidden="" style="background: rgb(255, 255, 255);">
+      <h2 data-template-id="result-heading" id="result-heading" class="canva-text m-0 font-semibold" style="color: rgb(24, 48, 43); font-weight: 600; font-style: normal; font-size: 24px;">Your result</h2>
+      <p data-template-id="bmi-score-label" class="canva-text mt-4 mb-1" style="color: rgb(93, 109, 104); font-weight: 400; font-style: normal; font-size: 14px;">BMI score</p><output data-template-id="bmi-score" id="bmi-score" class="bmi-score canva-text" aria-label="Your BMI score" style="color: rgb(23, 107, 91); font-weight: 700;"></output>
+      <div class="mt-5">
+       <p data-template-id="category-label" class="canva-text mb-2" style="color: rgb(93, 109, 104); font-weight: 400; font-style: normal; font-size: 14px;">Health category</p><span data-template-id="underweight-badge" id="underweight-badge" class="category-badge canva-tag" hidden="" style="background: rgb(29, 78, 216); color: rgb(255, 255, 255); font-weight: 700; font-style: normal; font-size: 15px;">Underweight</span> <span data-template-id="normal-badge" id="normal-badge" class="category-badge canva-tag" hidden="" style="background: rgb(21, 128, 61); color: rgb(255, 255, 255); font-weight: 700; font-style: normal; font-size: 15px;">Normal</span> <span data-template-id="overweight-badge" id="overweight-badge" class="category-badge canva-tag" hidden="" style="background: rgb(180, 83, 9); color: rgb(255, 255, 255); font-weight: 700; font-style: normal; font-size: 15px;">Overweight</span> <span data-template-id="obese-badge" id="obese-badge" class="category-badge canva-tag" hidden="" style="background: rgb(180, 35, 24); color: rgb(255, 255, 255); font-weight: 700; font-style: normal; font-size: 15px;">Obese</span>
+      </div>
+      <div class="bmi-scale" aria-label="BMI range indicator"><span class="scale-under">Underweight</span><span class="scale-normal">Normal</span><span class="scale-over">Overweight</span><span class="scale-obese">Obese</span><i id="bmi-marker" aria-hidden="true"></i>
+      </div>
+      <p id="result-summary" class="sr-only" aria-live="polite"></p>
+      <p id="health-tip" class="health-tip"></p>
+      <div id="previous-result" class="previous-result" hidden="">
+       Previous result: <strong id="previous-text"></strong>
+      </div>
+     </section>
+    </article>
+    <footer class="disclaimer">
+     <strong>Health information disclaimer:</strong> These calculators provide general estimates for informational and educational purposes only. They are not medical advice, diagnosis, or treatment. If you have health concerns, consult a qualified healthcare professional.
+    </footer>
+   </section>
+  </main>
+  <footer class="site-footer" aria-label="Site footer"><span>Health Calculator Suite</span>
+   <nav aria-label="Footer navigation"><a data-template-id="footer-home" class="canva-link" href="/" style="color: rgb(93, 109, 104); font-weight: 600; font-style: normal; font-size: 16px;">Home</a> <a data-template-id="footer-about" class="canva-link" href="./about-us.html" style="color: rgb(93, 109, 104); font-weight: 600; font-style: normal; font-size: 16px;">About Us</a> <a data-template-id="footer-privacy" class="canva-link" href="./privacy-policy.html" style="color: rgb(93, 109, 104); font-weight: 600; font-style: normal; font-size: 16px;">Privacy Policy</a> <a data-template-id="footer-contact" class="canva-link" href="./contact.html" style="color: rgb(93, 109, 104); font-weight: 600; font-style: normal; font-size: 16px;">Contact</a>
+   </nav>
+  </footer>
+
+<script>
+(() => {
+  "use strict";
+
+  // -------------------------
+  // BMI CALCULATOR
+  // -------------------------
+  const bmiForm = document.getElementById("bmi-form");
+  const unitRadios = document.querySelectorAll('input[name="units"]');
+  const imperialFields = document.querySelectorAll(".imperial-only");
+  const weightInput = document.getElementById("weight-input");
+  const heightInput = document.getElementById("height-input");
+  const feetInput = document.getElementById("height-feet");
+  const inchesInput = document.getElementById("height-inches");
+  const resetButton = document.getElementById("reset-button");
+  const validationMessage = document.getElementById("validation-message");
+  const resultSection = document.getElementById("result-section");
+  const bmiScore = document.getElementById("bmi-score");
+  const marker = document.getElementById("bmi-marker");
+  const tips = {
+    underweight: "Consider discussing healthy ways to support your nutrition with a healthcare professional.",
+    normal: "Great! Keep maintaining a balanced diet and regular activity.",
+    overweight: "Small, sustainable changes in nutrition and activity can support your health.",
+    obese: "Consider speaking with a healthcare professional about supportive next steps."
+  };
+  const badgeIds = ["underweight-badge", "normal-badge", "overweight-badge", "obese-badge"];
+
+  function setImperialMode(isImperial) {
+    imperialFields.forEach((field) => field.hidden = !isImperial);
+    weightInput.placeholder = isImperial ? "e.g. 154" : "e.g. 70";
+    heightInput.hidden = isImperial;
+    const heightLabel = document.querySelector('label[for="height-input"]');
+    if (heightLabel) heightLabel.hidden = isImperial;
+  }
+
+  function clearValidation() {
+    validationMessage.textContent = "";
+    [weightInput, heightInput, feetInput, inchesInput].forEach((field) => {
+      if (field) field.setAttribute("aria-invalid", "false");
+    });
+  }
+
+  function showValidation(message, field) {
+    validationMessage.textContent = message;
+    if (field) {
+      field.setAttribute("aria-invalid", "true");
+      field.focus();
+    }
+  }
+
+  function showCategory(category) {
+    badgeIds.forEach((id) => {
+      const badge = document.getElementById(id);
+      if (badge) badge.hidden = id !== `${category}-badge`;
+    });
+  }
+
+  function getPreviousResult() {
+    try {
+      return JSON.parse(localStorage.getItem("bmi-previous") || "null");
+    } catch (_) {
+      return null;
+    }
+  }
+
+  function updatePreviousResult() {
+    const previous = getPreviousResult();
+    const box = document.getElementById("previous-result");
+    const text = document.getElementById("previous-text");
+    if (previous && box && text) {
+      box.hidden = false;
+      text.textContent = `${previous.bmi} (${previous.category}, ${previous.units})`;
+    } else if (box) {
+      box.hidden = true;
+    }
+  }
+
+  unitRadios.forEach((radio) => {
+    radio.addEventListener("change", () => {
+      if (radio.checked) setImperialMode(radio.value === "imperial");
+    });
+  });
+
+  bmiForm.addEventListener("submit", (event) => {
+    event.preventDefault();
+    clearValidation();
+
+    const isImperial = document.querySelector('input[name="units"]:checked')?.value === "imperial";
+    const weight = Number.parseFloat(weightInput.value);
+
+    if (!Number.isFinite(weight) || weight <= 0) {
+      showValidation("Please enter a valid weight.", weightInput);
+      return;
+    }
+
+    let kg;
+    let heightMeters;
+
+    if (isImperial) {
+      const feet = Number.parseFloat(feetInput.value);
+      const inches = Number.parseFloat(inchesInput.value);
+
+      if (!Number.isFinite(feet) || feet < 3 || feet > 8) {
+        showValidation("Please enter a valid height between 3 and 8 ft.", feetInput);
+        return;
+      }
+      if (!Number.isFinite(inches) || inches < 0 || inches >= 12) {
+        showValidation("Please enter height inches from 0 to 11.9.", inchesInput);
+        return;
+      }
+      if (weight < 22 || weight > 1100) {
+        showValidation("Please enter a valid weight between 22–1100 lb.", weightInput);
+        return;
+      }
+
+      kg = weight * 0.45359237;
+      heightMeters = (feet * 12 + inches) * 0.0254;
+    } else {
+      const height = Number.parseFloat(heightInput.value);
+      if (!Number.isFinite(weight) || weight < 10 || weight > 500) {
+        showValidation("Please enter a valid weight between 10–500 kg.", weightInput);
+        return;
+      }
+      if (!Number.isFinite(height) || height < 50 || height > 250) {
+        showValidation("Please enter a valid height between 50–250 cm.", heightInput);
+        return;
+      }
+
+      kg = weight;
+      heightMeters = height / 100;
+    }
+
+    const bmi = kg / (heightMeters * heightMeters);
+    const score = bmi.toFixed(1);
+    const category =
+      bmi < 18.5 ? "underweight" :
+      bmi < 25 ? "normal" :
+      bmi < 30 ? "overweight" : "obese";
+
+    bmiScore.value = score;
+    resultSection.hidden = false;
+    document.getElementById("result-summary").textContent =
+      `BMI ${score}, category ${category}.`;
+    document.getElementById("health-tip").textContent = tips[category];
+    marker.style.left = `${Math.max(0, Math.min(100, (bmi / 40) * 100))}%`;
+    showCategory(category);
+
+    try {
+      localStorage.setItem("bmi-previous", JSON.stringify({
+        bmi: score,
+        category,
+        units: isImperial ? "Imperial" : "Metric"
+      }));
+    } catch (_) {}
+    updatePreviousResult();
+  });
+
+  resetButton.addEventListener("click", () => {
+    bmiForm.reset();
+    unitRadios[0].checked = true;
+    setImperialMode(false);
+    resultSection.hidden = true;
+    clearValidation();
+    weightInput.focus();
+  });
+
+  [weightInput, heightInput, feetInput, inchesInput].forEach((input) => {
+    input.addEventListener("input", () => {
+      input.setAttribute("aria-invalid", "false");
+      if (validationMessage.textContent) validationMessage.textContent = "";
+    });
+  });
+
+  setImperialMode(false);
+  updatePreviousResult();
+
+  // -------------------------
+  // TOOL TABS
+  // -------------------------
+  const tabs = document.querySelectorAll(".tool-tab");
+  const bmiCard = document.getElementById("bmi-tool");
+  const sections = document.querySelectorAll(".tool-section");
+
+  function activateTool(tab) {
+    const tool = tab.dataset.tool;
+
+    tabs.forEach((current) => {
+      const selected = current === tab;
+      current.classList.toggle("active", selected);
+      current.setAttribute("aria-selected", String(selected));
+      current.tabIndex = selected ? 0 : -1;
+    });
+
+    if (bmiCard) bmiCard.hidden = tool !== "bmi";
+    sections.forEach((section) => {
+      section.hidden = section.id !== `${tool}-tool`;
+    });
+  }
+
+  tabs.forEach((tab, index) => {
+    tab.addEventListener("click", () => activateTool(tab));
+
+    tab.addEventListener("keydown", (event) => {
+      if (["ArrowRight", "ArrowDown", "ArrowLeft", "ArrowUp"].includes(event.key)) {
+        event.preventDefault();
+        const delta = ["ArrowRight", "ArrowDown"].includes(event.key) ? 1 : -1;
+        const next = tabs[(index + delta + tabs.length) % tabs.length];
+        next.focus();
+        activateTool(next);
+      }
+
+      if (event.key === "Enter" || event.key === " ") {
+        event.preventDefault();
+        activateTool(tab);
+      }
+    });
+  });
+
+  if (tabs.length) activateTool(document.querySelector(".tool-tab.active") || tabs[0]);
+
+  // -------------------------
+  // BMR & DAILY CALORIES
+  // Mifflin-St Jeor equation
+  // -------------------------
+  document.querySelectorAll('.tool-form[data-kind="bmr"]').forEach((form) => {
+    form.addEventListener("submit", (event) => {
+      event.preventDefault();
+
+      const age = Number(form.querySelector("#bmr-age")?.value);
+      const weight = Number(form.querySelector("#bmr-weight")?.value);
+      const height = Number(form.querySelector("#bmr-height")?.value);
+      const activity = Number(form.querySelector("#bmr-activity")?.value);
+      const gender = form.querySelector('input[name="bmr-gender"]:checked')?.value;
+      const error = form.querySelector(".tool-error");
+      const output = form.nextElementSibling;
+
+      error.textContent = "";
+
+      if (!Number.isFinite(age) || age < 13 || age > 120 ||
+          !Number.isFinite(weight) || weight < 10 || weight > 500 ||
+          !Number.isFinite(height) || height < 50 || height > 250 ||
+          !gender) {
+        error.textContent = "Please enter a valid age, weight, height, and choose a gender.";
+        output.hidden = true;
+        return;
+      }
+
+      const bmr = 10 * weight + 6.25 * height - 5 * age + (gender === "male" ? 5 : -161);
+      const maintenance = Math.round(bmr * activity);
+
+      output.innerHTML =
+        `Estimated BMR: <strong>${Math.round(bmr)} calories/day</strong><br>
+         Estimated maintenance: <strong>${maintenance} calories/day</strong><br>
+         Example deficit: <strong>${Math.max(0, maintenance - 500)} calories/day</strong><br>
+         Example surplus: <strong>${maintenance + 500} calories/day</strong>
+         <p>These are estimates for general informational use.</p>`;
+      output.hidden = false;
+    });
+
+    form.addEventListener("reset", () => {
+      const output = form.nextElementSibling;
+      const error = form.querySelector(".tool-error");
+      output.hidden = true;
+      error.textContent = "";
+    });
+  });
+
+  // -------------------------
+  // IDEAL BODY WEIGHT
+  // Devine formula
+  // -------------------------
+  document.querySelectorAll('.tool-form[data-kind="ideal"]').forEach((form) => {
+    form.addEventListener("submit", (event) => {
+      event.preventDefault();
+
+      const height = Number(form.querySelector("#ideal-height")?.value);
+      const gender = form.querySelector('input[name="ideal-gender"]:checked')?.value;
+      const error = form.querySelector(".tool-error");
+      const output = form.nextElementSibling;
+
+      error.textContent = "";
+
+      if (!Number.isFinite(height) || height < 50 || height > 250 || !gender) {
+        error.textContent = "Please enter a valid height between 50–250 cm and choose a gender.";
+        output.hidden = true;
+        return;
+      }
+
+      const inchesOver5ft = height / 2.54 - 60;
+      const base = gender === "male" ? 50 : 45.5;
+      const ideal = base + 2.3 * Math.max(0, inchesOver5ft);
+
+      output.innerHTML =
+        `Estimated reference weight: <strong>${ideal.toFixed(1)} kg</strong>
+         <p>This is a reference estimate, not a target or medical recommendation.</p>`;
+      output.hidden = false;
+    });
+
+    form.addEventListener("reset", () => {
+      form.nextElementSibling.hidden = true;
+      form.querySelector(".tool-error").textContent = "";
+    });
+  });
+
+  // -------------------------
+  // BODY FAT %
+  // U.S. Navy circumference method
+  // -------------------------
+  document.querySelectorAll('.tool-form[data-kind="fat"]').forEach((form) => {
+    form.addEventListener("submit", (event) => {
+      event.preventDefault();
+
+      const waist = Number(form.querySelector("#fat-waist")?.value);
+      const neck = Number(form.querySelector("#fat-neck")?.value);
+      const height = Number(form.querySelector("#fat-height")?.value);
+      const hip = Number(form.querySelector("#fat-hip")?.value);
+      const gender = form.querySelector('input[name="fat-gender"]:checked')?.value;
+      const error = form.querySelector(".tool-error");
+      const output = form.nextElementSibling;
+
+      error.textContent = "";
+
+      if (!Number.isFinite(waist) || !Number.isFinite(neck) ||
+          !Number.isFinite(height) || waist <= 0 || neck <= 0 ||
+          height < 50 || height > 250 || !gender) {
+        error.textContent = "Please enter valid measurements and choose a gender.";
+        output.hidden = true;
+        return;
+      }
+
+      let bodyFat;
+
+      if (gender === "male") {
+        if (waist <= neck) {
+          error.textContent = "For this estimate, waist measurement must be greater than neck measurement.";
+          output.hidden = true;
+          return;
+        }
+        bodyFat =
+          86.010 * Math.log10((waist - neck) / 2.54) -
+          70.041 * Math.log10(height / 2.54) +
+          36.76;
+      } else {
+        if (!Number.isFinite(hip) || hip <= 0 || waist + hip <= neck) {
+          error.textContent = "Please enter a valid hip measurement for the female estimate.";
+          output.hidden = true;
+          return;
+        }
+        bodyFat =
+          163.205 * Math.log10((waist + hip - neck) / 2.54) -
+          97.684 * Math.log10(height / 2.54) -
+          78.387;
+      }
+
+      if (!Number.isFinite(bodyFat)) {
+        error.textContent = "Those measurements could not produce a valid estimate.";
+        output.hidden = true;
+        return;
+      }
+
+      output.innerHTML =
+        `Estimated body fat: <strong>${bodyFat.toFixed(1)}%</strong>
+         <p>This is a general estimate and can differ substantially from clinical measurements.</p>`;
+      output.hidden = false;
+    });
+
+    form.addEventListener("reset", () => {
+      form.nextElementSibling.hidden = true;
+      form.querySelector(".tool-error").textContent = "";
+    });
+  });
+
+  // -------------------------
+  // WATER INTAKE
+  // Simple weight-based estimate
+  // -------------------------
+  document.querySelectorAll('.tool-form[data-kind="water"]').forEach((form) => {
+    form.addEventListener("submit", (event) => {
+      event.preventDefault();
+
+      const weight = Number(form.querySelector("#water-weight")?.value);
+      const activity = Number(form.querySelector("#water-activity")?.value);
+      const error = form.querySelector(".tool-error");
+      const output = form.nextElementSibling;
+
+      error.textContent = "";
+
+      if (!Number.isFinite(weight) || weight < 10 || weight > 500) {
+        error.textContent = "Please enter a valid weight between 10–500 kg.";
+        output.hidden = true;
+        return;
+      }
+
+      const ml = weight * (35 + activity);
+
+      output.innerHTML =
+        `Estimated daily water intake: <strong>${(ml / 1000).toFixed(1)} liters/day</strong>
+         (${Math.round(ml)} mL)
+         <p>Actual fluid needs vary with climate, diet, activity, and health conditions.</p>`;
+      output.hidden = false;
+    });
+
+    form.addEventListener("reset", () => {
+      form.nextElementSibling.hidden = true;
+      form.querySelector(".tool-error").textContent = "";
+    });
+  });
+})();
+</script>
+</body>
+</html>
