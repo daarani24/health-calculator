@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://imaginative-profiterole-70e00d.netlify.app/sitemap.xml
