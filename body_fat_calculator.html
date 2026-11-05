@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Body Fat Percentage Calculator (U.S. Navy Method) | Health Calculator Suite</title>
+  <meta name="description" content="Free body fat percentage calculator using the U.S. Navy method. Enter waist, neck, height, and hip measurements for an estimate.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://imaginative-profiterole-70e00d.netlify.app/body-fat-calculator">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Body Fat Percentage Calculator (U.S. Navy Method) | Health Calculator Suite">
+  <meta property="og:description" content="Free body fat percentage calculator using the U.S. Navy method. Enter waist, neck, height, and hip measurements for an estimate.">
+  <meta property="og:url" content="https://imaginative-profiterole-70e00d.netlify.app/body-fat-calculator">
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/styles.css">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Why must the waist be larger than the neck for men?", "acceptedAnswer": {"@type": "Answer", "text": "The formula uses the difference between waist and neck. If the neck is as large as the waist, the calculation cannot produce a meaningful value, so recheck your measurements."}}, {"@type": "Question", "name": "Why is a hip measurement needed for women?", "acceptedAnswer": {"@type": "Answer", "text": "The formula for women includes hip size because fat distribution differs between men and women."}}, {"@type": "Question", "name": "What is a healthy body fat percentage?", "acceptedAnswer": {"@type": "Answer", "text": "It varies with age, sex, and fitness level. A healthcare professional or qualified trainer can tell you what range suits you."}}]}</script>
+  <script data-cfasync="false" src="https://bauval.org/14/b32c79bffb244a11edada83ecb0c89eb"></script>
+</head>
+<body>
+<main id="app-main" class="bmi-page">
+<section class="calculator-shell">
+<nav class="tool-nav" aria-label="Health tools"><a class="tool-tab" href="/">BMI</a> <a class="tool-tab" href="/bmr-calculator">BMR &amp; Calories</a> <a class="tool-tab" href="/ideal-weight-calculator">Ideal Weight</a> <a class="tool-tab active" href="/body-fat-calculator" aria-current="page">Body Fat</a> <a class="tool-tab" href="/water-intake-calculator">Water Intake</a></nav>
+<article class="calculator-card"><header><span class="eyebrow" aria-hidden="true">Health tool</span><h1 class="page-title">Body Fat Percentage Calculator</h1><p class="page-subtitle">Estimate your body fat with the U.S. Navy circumference method.</p></header><form class="tool-form" data-kind="fat"><label for="fat-waist">Waist (cm)</label><input id="fat-waist" class="number-input" type="number" required><label for="fat-neck">Neck (cm)</label><input id="fat-neck" class="number-input" type="number" required><label for="fat-height">Height (cm)</label><input id="fat-height" class="number-input" type="number" min="50" max="250" required><label for="fat-hip">Hip (cm, women)</label><input id="fat-hip" class="number-input" type="number"><fieldset><legend>Gender</legend><label><input type="radio" name="fat-gender" value="male"> Male</label><label><input type="radio" name="fat-gender" value="female"> Female</label></fieldset><button class="calculate-button" type="submit">Calculate</button><button class="reset-button" type="reset">Reset</button><p class="tool-error" role="alert" aria-live="assertive"></p></form><div class="tool-result result-panel" aria-live="polite" hidden></div></article>
+<footer class="disclaimer"><strong>Health information disclaimer:</strong> These calculators provide general estimates for informational and educational purposes only. They are not medical advice, diagnosis, or treatment. If you have health concerns, consult a qualified healthcare professional.</footer>
+<article class="calculator-card content-card">
+<h2>How the U.S. Navy method works</h2><p>This calculator estimates body fat from tape measurements instead of skinfold calipers or scans. It uses your height, neck, and waist, plus your hip measurement for women, in a logarithmic formula developed for the U.S. military. It is popular because it needs only a soft measuring tape.</p>
+<h2>How to measure correctly</h2><ul><li>Neck: measure just below the larynx (Adam's apple), keeping the tape level.</li><li>Waist: for men, measure at the navel. For women, measure at the narrowest point of the waist.</li><li>Hips (women): measure at the widest point of the hips and buttocks.</li><li>Stand relaxed, do not pull the tape tight, and measure twice to confirm.</li></ul>
+<h2>How accurate is it?</h2><p>It is a general estimate and can differ from clinical methods such as DEXA scans by several percentage points. It is most useful for tracking your own changes over time using the same measuring technique. For a quick screening number, you can also check your <a href="/">BMI</a>.</p>
+<h2>Frequently asked questions</h2>
+<h3>Why must the waist be larger than the neck for men?</h3><p>The formula uses the difference between waist and neck. If the neck is as large as the waist, the calculation cannot produce a meaningful value, so recheck your measurements.</p>
+<h3>Why is a hip measurement needed for women?</h3><p>The formula for women includes hip size because fat distribution differs between men and women.</p>
+<h3>What is a healthy body fat percentage?</h3><p>It varies with age, sex, and fitness level. A healthcare professional or qualified trainer can tell you what range suits you.</p>
+</article>
+</section>
+</main>
+<footer class="site-footer" aria-label="Site footer"><span>Health Calculator Suite</span><nav aria-label="Footer navigation"><a href="/">Home</a> <a href="/about-us">About Us</a> <a href="/privacy-policy">Privacy Policy</a> <a href="/contact">Contact</a></nav></footer>
+<script>
+(() => {
+  "use strict";
+  document.querySelectorAll('.tool-form[data-kind="fat"]').forEach((form) => {
+    form.addEventListener("submit", (event) => {
+      event.preventDefault();
+      const waist = Number(form.querySelector("#fat-waist")?.value);
+      const neck = Number(form.querySelector("#fat-neck")?.value);
+      const height = Number(form.querySelector("#fat-height")?.value);
+      const hip = Number(form.querySelector("#fat-hip")?.value);
+      const gender = form.querySelector('input[name="fat-gender"]:checked')?.value;
+      const error = form.querySelector(".tool-error");
+      const output = form.nextElementSibling;
+      error.textContent = "";
+      if (!Number.isFinite(waist) || !Number.isFinite(neck) ||
+          !Number.isFinite(height) || waist <= 0 || neck <= 0 ||
+          height < 50 || height > 250 || !gender) {
+        error.textContent = "Please enter valid measurements and choose a gender.";
+        output.hidden = true;
+        return;
+      }
+      let bodyFat;
+      if (gender === "male") {
+        if (waist <= neck) {
+          error.textContent = "For this estimate, waist measurement must be greater than neck measurement.";
+          output.hidden = true;
+          return;
+        }
+        bodyFat = 86.010 * Math.log10((waist - neck) / 2.54) - 70.041 * Math.log10(height / 2.54) + 36.76;
+      } else {
+        if (!Number.isFinite(hip) || hip <= 0 || waist + hip <= neck) {
+          error.textContent = "Please enter a valid hip measurement for the female estimate.";
+          output.hidden = true;
+          return;
+        }
+        bodyFat = 163.205 * Math.log10((waist + hip - neck) / 2.54) - 97.684 * Math.log10(height / 2.54) - 78.387;
+      }
+      if (!Number.isFinite(bodyFat)) {
+        error.textContent = "Those measurements could not produce a valid estimate.";
+        output.hidden = true;
+        return;
+      }
+      output.innerHTML =
+        `Estimated body fat: <strong>${bodyFat.toFixed(1)}%</strong>
+         <p>This is a general estimate and can differ substantially from clinical measurements.</p>`;
+      output.hidden = false;
+    });
+    form.addEventListener("reset", () => {
+      form.nextElementSibling.hidden = true;
+      form.querySelector(".tool-error").textContent = "";
+    });
+  });
+})();
+</script>
+</body>
+</html>
