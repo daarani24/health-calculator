@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Daily Water Intake Calculator – How Much Water to Drink | Health Calculator Suite</title>
+  <meta name="description" content="Free water intake calculator. Enter your weight and activity level to estimate how many liters of water you should drink each day.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://imaginative-profiterole-70e00d.netlify.app/water-intake-calculator">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Daily Water Intake Calculator – How Much Water to Drink | Health Calculator Suite">
+  <meta property="og:description" content="Free water intake calculator. Enter your weight and activity level to estimate how many liters of water you should drink each day.">
+  <meta property="og:url" content="https://imaginative-profiterole-70e00d.netlify.app/water-intake-calculator">
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/styles.css">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Do coffee, tea, and food count toward my water intake?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Beverages and the water found in food contribute to your total fluid intake, so you do not need to get every liter from plain water."}}, {"@type": "Question", "name": "What are signs that I am not drinking enough?", "acceptedAnswer": {"@type": "Answer", "text": "Common signs include thirst, dark yellow urine, headache, dry mouth, and tiredness. Severe or persistent symptoms need medical attention."}}, {"@type": "Question", "name": "Can you drink too much water?", "acceptedAnswer": {"@type": "Answer", "text": "Yes, although it is uncommon. Drinking very large amounts in a short time can dilute sodium levels in the blood. Spread your intake through the day."}}]}</script>
+  <script data-cfasync="false" src="https://bauval.org/14/b32c79bffb244a11edada83ecb0c89eb"></script>
+</head>
+<body>
+<main id="app-main" class="bmi-page">
+<section class="calculator-shell">
+<nav class="tool-nav" aria-label="Health tools"><a class="tool-tab" href="/">BMI</a> <a class="tool-tab" href="/bmr-calculator">BMR &amp; Calories</a> <a class="tool-tab" href="/ideal-weight-calculator">Ideal Weight</a> <a class="tool-tab" href="/body-fat-calculator">Body Fat</a> <a class="tool-tab active" href="/water-intake-calculator" aria-current="page">Water Intake</a></nav>
+<article class="calculator-card"><header><span class="eyebrow" aria-hidden="true">Health tool</span><h1 class="page-title">Daily Water Intake Calculator</h1><p class="page-subtitle">Find out roughly how much water you should drink each day.</p></header><form class="tool-form" data-kind="water"><label for="water-weight">Weight (kg)</label><input id="water-weight" class="number-input" type="number" min="10" max="500" required><label for="water-activity">Activity level</label><select id="water-activity" class="number-input"><option value="0">Sedentary</option><option value="5">Light</option><option value="10">Moderate</option><option value="15">Active</option></select><button class="calculate-button" type="submit">Calculate</button><button class="reset-button" type="reset">Reset</button><p class="tool-error" role="alert" aria-live="assertive"></p></form><div class="tool-result result-panel" aria-live="polite" hidden></div></article>
+<footer class="disclaimer"><strong>Health information disclaimer:</strong> These calculators provide general estimates for informational and educational purposes only. They are not medical advice, diagnosis, or treatment. If you have health concerns, consult a qualified healthcare professional.</footer>
+<article class="calculator-card content-card">
+<h2>How much water do you need?</h2><p>A common starting point is about 35 mL of fluid per kilogram of body weight per day. This calculator adds extra fluid for activity: 5 mL per kg for light activity, 10 mL per kg for moderate activity, and 15 mL per kg for an active lifestyle. For example, a 60 kg person with moderate activity would get about (35 + 10) × 60 = 2,700 mL, or roughly 2.7 liters per day.</p>
+<h2>What else affects your needs?</h2><ul><li>Hot or humid weather and high altitude increase fluid needs.</li><li>Illness with fever, vomiting, or diarrhea increases fluid loss.</li><li>Pregnancy and breastfeeding raise requirements.</li><li>Some conditions, such as kidney or heart problems, may require limiting fluids, so follow your doctor's advice.</li></ul>
+<h2>Tips for staying hydrated</h2><p>Water, tea, milk, and the water in fruits and vegetables all contribute to your daily fluid intake. Sip steadily through the day instead of drinking large amounts at once, and drink more around exercise. Pale yellow urine is a simple everyday sign that you are well hydrated. You can also check your overall numbers with the <a href="/">BMI calculator</a> or the <a href="/bmr-calculator">BMR and calorie calculator</a>.</p>
+<h2>Frequently asked questions</h2>
+<h3>Do coffee, tea, and food count toward my water intake?</h3><p>Yes. Beverages and the water found in food contribute to your total fluid intake, so you do not need to get every liter from plain water.</p>
+<h3>What are signs that I am not drinking enough?</h3><p>Common signs include thirst, dark yellow urine, headache, dry mouth, and tiredness. Severe or persistent symptoms need medical attention.</p>
+<h3>Can you drink too much water?</h3><p>Yes, although it is uncommon. Drinking very large amounts in a short time can dilute sodium levels in the blood. Spread your intake through the day.</p>
+</article>
+</section>
+</main>
+<footer class="site-footer" aria-label="Site footer"><span>Health Calculator Suite</span><nav aria-label="Footer navigation"><a href="/">Home</a> <a href="/about-us">About Us</a> <a href="/privacy-policy">Privacy Policy</a> <a href="/contact">Contact</a></nav></footer>
+<script>
+(() => {
+  "use strict";
+  document.querySelectorAll('.tool-form[data-kind="water"]').forEach((form) => {
+    form.addEventListener("submit", (event) => {
+      event.preventDefault();
+      const weight = Number(form.querySelector("#water-weight")?.value);
+      const activity = Number(form.querySelector("#water-activity")?.value);
+      const error = form.querySelector(".tool-error");
+      const output = form.nextElementSibling;
+      error.textContent = "";
+      if (!Number.isFinite(weight) || weight < 10 || weight > 500) {
+        error.textContent = "Please enter a valid weight between 10–500 kg.";
+        output.hidden = true;
+        return;
+      }
+      const ml = weight * (35 + activity);
+      output.innerHTML =
+        `Estimated daily water intake: <strong>${(ml / 1000).toFixed(1)} liters/day</strong>
+         (${Math.round(ml)} mL)
+         <p>Actual fluid needs vary with climate, diet, activity, and health conditions.</p>`;
+      output.hidden = false;
+    });
+    form.addEventListener("reset", () => {
+      form.nextElementSibling.hidden = true;
+      form.querySelector(".tool-error").textContent = "";
+    });
+  });
+})();
+</script>
+</body>
+</html>
